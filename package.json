@@ -2,15 +2,18 @@
   "name": "js_checkpoint3",
   "version": "0.0.1",
   "description": "",
-  "homepage": "https://github.com/{{ org }}/js_checkpoint3#readme",
+  "homepage": "https://github.com/WildCodeSchool/js_checkpoint3#readme",
   "bugs": {
-    "url": "https://github.com/{{ org }}/js_checkpoint3/issues"
+    "url": "https://github.com/WildCodeSchool/js_checkpoint3/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/{{ org }}/js_checkpoint3.git"
+    "url": "git+https://github.com/WildCodeSchool/js_checkpoint3.git"
   },
-  "workspaces": ["client", "server"],
+  "workspaces": [
+    "client",
+    "server"
+  ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "check": "biome check --error-on-warnings --no-errors-on-unmatched --staged . && npm run check-types --workspaces --if-present",
@@ -26,7 +29,7 @@
     "test": "npm run test --workspaces --if-present"
   },
   "keywords": [],
-  "author": "{{ org }}",
+  "author": "WildCodeSchool",
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

@@ -1,391 +1,161 @@
-# js_checkpoint3
+# Checkpoint 3 - JS
 
-Ce projet est un monorepo JS, suivant l'architecture React-Express-MySQL telle qu'enseignée à la Wild Code School (v7.2.4) :
+## Introduction - Que sont les checkpoints ?
 
-```mermaid
-sequenceDiagram
-    box Web Client
-    participant React as React
-    participant Fetcher as Fetcher
-    end
-    box Web Server
-    participant Express as Express
-    participant Module as Module
-    end
-    box DB Server
-    participant DB as MySQL Server
-    end
+Pour rappel un **checkpoint** est un terme utilisé dans la Wild Code School pour décrire une **auto-évaluation dans un temps donné**. Elle dure généralement une demi-journée (jusqu'à une journée complète ou plus).
 
-    React-)Fetcher: event
-    activate Fetcher
-    Fetcher-)Express: requête (HTTP)
-    activate Express
-    Express-)Module: appel
-    activate Module
-    Module-)DB: requête SQL
-    activate DB
-    DB--)Module: données
-    deactivate DB
-    Module--)Express: json
-    deactivate Module
-    Express--)Fetcher: réponse HTTP
-    deactivate Express
-    Fetcher--)React: render
-    deactivate Fetcher
+Ces checkpoints sont conçus pour atteindre un certain nombre d’objectifs en te présentant :
+
+> 1. ... une façon de mesurer tes progrès 📏📈
+> 2. ... la possibilité d'utiliser tes compétences acquises dans un objectif qui a du sens 🚩🥅
+> 3. ... la possibilité d'exercer les compétences de gestion du temps et de priorisation ⌛⬆️
+> 4. ... l'opportunité de revoir et d'apprendre du code des autres, montrant qu'il existe toujours de nombreuses façons différentes d'accomplir une tâche 👥💬
+
+## Les grandes lignes – Applicables à tous les checkpoints
+
+Chaque checkpoint implique un ensemble d’étapes similaires :
+
+1. Cloner le dépôt localement à l'aide des commandes git
+2. Immédiatement après le clonage, créer une nouvelle branche localement et basculer dessus
+3. Pour nommer ta branche, nous aimerions que tu utilises le modèle `{{firstname}}_{{LASTNAME}}` où :
+
+- `{{firstname}}` est un placeholder qui doit être remplacé par ton prénom, en minuscules
+- `{{LASTNAME}}` est un placeholder qui doit être remplacé par ton nom de famille, en majuscules
+
+(par exemple, si ton prénom est John et ton nom Doe, le modèle `{{firstname}}_{{LASTNAME}}` donnera `john_DOE`)
+
+4. Ouvrir le dépôt cloné dans ton IDE
+5. Faire un commit après chaque étape, avec un message de commit qui met en évidence la partie terminée (par exemple `finished step 1`)
+6. Pousser tes modifications vers GitHub, de préférence après chaque validation
+
+## Pour ce checkpoint en particulier
+
+Ton objectif est de voir où tu en es sur :
+
+- [ ] La modélisation de base de données
+- [ ] L'utilisation des routes dans Express
+- [ ] L'utilisation des actions / middlewares
+- [ ] L'utilisation des repositories
+- [ ] Les jointures en SQL
+
+Lance les commandes suivantes :
+
+```bash
+npm install
+cd server
 ```
 
-Il est pré-configuré avec un ensemble d'outils pour aider les étudiants à produire du code de qualité industrielle, tout en restant un outil pédagogique :
+Un éditeur nous a confié la version alpha d'un jeu dans l'univers de "Pirates des Caraïbes".
+Mais seul la partie frontend est disponible.
+Pour ce checkpoint, tu vas rendre le jeu fonctionnel et travailler exclusivement sur le backend.
 
-- **Concurrently** : Permet d'exécuter plusieurs commandes simultanément dans le même terminal.
-- **Vite** : Alternative à _Create-React-App_, offrant une expérience plus fluide avec moins d'outils.
-- **Biome** : Alternative à _ESlint_ et _Prettier_, assurant la qualité du code selon des règles choisies.
-- **Supertest** : Bibliothèque pour tester les serveurs HTTP en node.js.
+Si le contexte du jeu t'intéresse, voici le pitch :
 
-## Table des Matières
+> Le pirate le plus célèbre du monde, le grand et l'inimitable capitaine Jack Sparrow, part à la recherche du trésor perdu de Rackham le Rouge, un vieux pirate impitoyable qui semait la terreur parmi les mers des Caraïbes, il y a très très longtemps.
+>
+> Un vieux marin du Royaume de France, le capitaine Haddock, a donné à Jack une carte mystérieuse avec de nombreuses îles dessus. Haddock sait seulement que le trésor est enterré sur l'une de ces îles.
+> Jack et son équipage ont pour mission de naviguer vers chacune d'elle, jusqu'à trouver les pièces d'or et les pierres précieuses qui constituent le trésor.
+>
+> Prenez le contrôle du Black Perl, le magnifique vaisseau de Jack, et naviguez parmi les océans.
+> Évitez les krakens, les tempêtes ou autres pirates et soyez le premier à trouver le trésor !
+> Il est temps de terminer votre dernière bouteille de rhum et de commencer cette aventure !
 
-- [js_checkpoint3](#name)
-  - [Table des Matières](#table-des-matières)
-  - [Installation \& Utilisation](#installation--utilisation)
-  - [Les choses à retenir](#les-choses-à-retenir)
-    - [Commandes de Base](#commandes-de-base)
-    - [Structure des Dossiers](#structure-des-dossiers)
-    - [Mettre en place la base de données](#mettre-en-place-la-base-de-données)
-    - [Développer la partie back-end](#développer-la-partie-back-end)
-    - [REST](#rest)
-    - [Autres Bonnes Pratiques](#autres-bonnes-pratiques)
-  - [FAQ](#faq)
-    - [Installation avec Docker](#installation-avec-docker)
-      - [Mode développement](#mode-développement)
-      - [Installation de nouvelles dépendances](#installation-de-nouvelles-dépendances)
-      - [Accéder à la base de données](#accéder-à-la-base-de-données)
-    - [Déploiement avec Traefik](#déploiement-avec-traefik)
-    - [Variables d'environnement spécifiques](#variables-denvironnement-spécifiques)
-    - [Logs](#logs)
-    - [Contribution](#contribution)
+## Avant d'attaquer le code
 
-## Installation & Utilisation
+Pour t'échauffer, commençons par un petit exercice de conception de base de données.
 
-1. Installez le plugin **Biome** dans VSCode et configurez-le.
-2. Clonez ce dépôt, puis accédez au répertoire cloné.
-3. Exécutez la commande `npm install`.
-4. Créez des fichiers d'environnement (`.env`) dans les répertoires `server` et `client` : vous pouvez copier les fichiers `.env.sample` comme modèles (**ne les supprimez pas**).
+Jack aime entendre de la musique pendant la navigation.
+Il veut créer sa propre application pour gérer les albums et les pistes.
+Aide-le en créant le Modèle Conceptuel de Données (MCD) pour les fonctionnalités suivantes :
 
-## Les choses à retenir
+- Jack doit pouvoir récupérer la liste complète des albums.
+- Chaque album a un titre, un genre, une image et un artiste.
+- Un album peut contenir plusieurs pistes, mais doit au moins en contenir une.
+- Une piste appartient à un et un seul album.
+- Chaque piste possède un titre et une URL YouTube.
 
-### Commandes de Base
+Enregistre une image de ta modélisation dans ce dépôt avec Git.
 
-| Commande               | Description                                                                 |
-|------------------------|-----------------------------------------------------------------------------|
-| `npm install`          | Installe les dépendances pour le client et le serveur                       |
-| `npm run db:migrate`   | Met à jour la base de données à partir d'un schéma défini                   |
-| `npm run dev`          | Démarre les deux serveurs (client et serveur) dans un seul terminal         |
-| `npm run check`        | Exécute les outils de validation (linting et formatage)                     |
-| `npm run test`         | Exécute les tests unitaires et d'intégration                                |
+## Jouer avec les tests
 
-### Structure des Dossiers
+La partie backend contient des tests pour chaque étape du checkpoint.
+Tu peux commencer par lancer la commande suivante :
 
-```plaintext
-my-project/
-│
-├── server/
-│   ├── app/
-│   │   ├── modules/
-│   │   │   ├── item/
-│   │   │   │   ├── itemActions.ts
-│   │   │   │   └── itemRepository.ts
-│   │   │   └── ...
-│   │   ├── app.ts
-│   │   ├── main.ts
-│   │   └── router.ts
-│   ├── database/
-│   │   ├── client.ts
-│   │   └── schema.sql
-│   ├── tests/
-│   ├── .env
-│   └── .env.sample
-│
-└── client/
-    ├── src/
-    │   ├── components/
-    │   ├── pages/
-    │   └── App.tsx
-    ├── .env
-    └── .env.sample
+```bash
+npm run test install
 ```
 
-### Mettre en place la base de données
+Après avoir executé cette commande, le terminal devrait afficher :
 
-**Créer et remplir le fichier `.env`** dans le dossier `server` :
-
-```plaintext
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=not_root
-DB_PASSWORD=password
-DB_NAME=my_database
+```
+FAIL  tests/install.test.ts
+  Installation
+    ✕ You have created /server/.env (2 ms)
+    ✓ You have retained /server/.env.sample
+    ✕ You have filled /server/.env with valid information to connect to your database (18 ms)
+    ✕ You have executed the db:migrate script (2 ms)
 ```
 
-**Les variables sont utilisés** dans `server/database/client.ts` :
+Les tests exécutés par la commande "npm run test" nous permettent de tester toutes sortes de choses (routes, requêtes ...). Ici il s'agit de tester l'installation et la configuration du checkpoint. Ce message qui s'affiche suite au premier test ressemblera aux autres étapes du checkpoint.
 
-```typescript
-const { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME } = process.env;
+Tu dois faire en sorte que chacune des étapes soit validée.
 
-import mysql from "mysql2/promise";
+Si tu ne l'as pas déjà fait, pour passer ce premier test, tu dois créer le fichier `.env` en copiant `.env.sample`.
 
-const client = mysql.createPool({
-  host: DB_HOST,
-  port: DB_PORT as number | undefined,
-  user: DB_USER,
-  password: DB_PASSWORD,
-  database: DB_NAME,
-});
+Si tu crées le `.env` comme demandé (en conservant `.env.sample`) et que tu relances le test, tu devrais voir :
 
-export default client;
+```
+  Installation
+    ✓ You have created /server/.env (1 ms)
+    ✓ You have retained /server/.env.sample
+    ✕ You have filled /server/.env with valid information to connect to your database (31 ms)
+    ✕ You have executed the db:migrate script (3 ms)
 ```
 
-**Créer une table** dans `server/database/schema.sql` :
+Tu peux remarquer que l'étape `You have created /server/.env` est maintenant cochée. Il ne te reste plus qu'à faire le reste 🚀 !
 
-```sql
-CREATE TABLE item (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  user_id INT NOT NULL,
-  FOREIGN KEY(user_id) REFERENCES user(id)
-);
-```
+**Attention :** Matelote, matelot ! Le README est tout aussi important que les messages des tests. C'est comme une carte qui t'aide à naviguer. Donc, n'oublie pas qu'il existe !
 
-**Insérer des données** dans `server/database/schema.sql` :
+Le schéma de la base de données pour ce projet est fourni dans `server/database/schema.sql` : la base de données contiendra des bateaux (pirates) et des "tuiles" d'une carte au trésor.
 
-```sql
-INSERT INTO item (title, user_id) VALUES
-  ('Sample Item 1', 1),
-  ('Sample Item 2', 2);
-```
+Tu dois exécuter le script `db:migrate` pour créer et remplir la base de données :
 
-**Synchroniser la BDD avec le schema** :
-
-```sh
+```bash
 npm run db:migrate
 ```
 
-### Développer la partie back-end
+Si tu relances les tests sur l'installation, tout devrait être au vert :
 
-**Créer une route** dans `server/app/router.ts` :
-
-```typescript
-// ...
-
-/* ************************************************************************* */
-// Define Your API Routes Here
-/* ************************************************************************* */
-
-// Define item-related routes
-import itemActions from "./modules/item/itemActions";
-
-router.get("/api/items", itemActions.browse);
-
-/* ************************************************************************* */
-
-// ...
-```
-
-**Définir une action** dans `server/app/modules/item/itemActions.ts` :
-
-```typescript
-import type { RequestHandler } from "express";
-
-import itemRepository from "./itemRepository";
-
-const browse: RequestHandler = async (req, res, next) => {
-  try {
-    const items = await itemRepository.readAll();
-
-    res.json(items);
-  } catch (err) {
-    next(err);
-  }
-};
-
-export default { browse };
-```
-
-**Accéder aux données** dans `server/app/modules/item/itemRepository.ts` :
-
-```typescript
-import databaseClient from "../../../database/client";
-
-import type { Result, Rows } from "../../../database/client";
-
-interface Item {
-  id: number;
-  title: string;
-  user_id: number;
-}
-
-class ItemRepository {
-  async readAll() {
-    const [rows] = await databaseClient.query<Rows>("select * from item");
-
-    return rows as Item[];
-  }
-}
-
-export default new ItemRepository();
-```
-
-**Ajouter un middleware** 
-
-```typescript
-// ...
-
-/* ************************************************************************* */
-// Define Your API Routes Here
-/* ************************************************************************* */
-
-// Define item-related routes
-import itemActions from "./modules/item/itemActions";
-
-const foo: RequestHandler = (req, res, next) => {
-  req.message = "hello middleware";
-
-  next();
-}
-
-router.get("/api/items", foo, itemActions.browse);
-
-/* ************************************************************************* */
-
-// ...
-```
-
-`req.message` sera disponible dans `itemActions.browse`.
-
-⚠️ La propriété `message` doit être ajoutée dans `src/types/express/index.d.ts` :
-
-```diff
-// to make the file a module and avoid the TypeScript error
-export type {};
-
-declare global {
-  namespace Express {
-    export interface Request {
-      /* ************************************************************************* */
-      // Add your custom properties here, for example:
-      //
-      // user?: { ... };
-      /* ************************************************************************* */
-+      message: string;
-    }
-  }
-}
-```
-
-### REST
-
-| Opération | Méthode | Chemin d'URL | Corps de la requête | SQL    | Réponse (Succès)               | Réponse (Erreur)                                                       |
-|-----------|---------|--------------|---------------------|--------|--------------------------------|------------------------------------------------------------------------|
-| Browse    | GET     | /items       |                     | SELECT | 200 (OK), liste des items.     |                                                                        |
-| Read      | GET     | /items/:id   |                     | SELECT | 200 (OK), un item.             | 404 (Not Found), si id invalide.                                       |
-| Add       | POST    | /items       | Données de l'item   | INSERT | 201 (Created), id d'insertion. | 400 (Bad Request), si corps invalide.                                  |
-| Edit      | PUT     | /items/:id   | Données de l'item   | UPDATE | 204 (No Content).              | 400 (Bad Request), si corps invalide. 404 (Not Found), si id invalide. |
-| Destroy   | DELETE  | /items/:id   |                     | DELETE | 204 (No Content).              | 404 (Not Found), si id invalide.                                       |
-
-### Autres Bonnes Pratiques
-
-- **Sécurité** :
-  - Validez et échappez toujours les entrées des utilisateurs.
-  - Utilisez HTTPS pour toutes les communications réseau.
-  - Stockez les mots de passe de manière sécurisée en utilisant des hash forts (ex : argon2).
-  - Revoyez et mettez à jour régulièrement les dépendances.
-
-- **Code** :
-  - Suivez les principes SOLID pour une architecture de code propre et maintenable.
-  - Utilisez TypeScript pour bénéficier de la vérification statique des types.
-  - Adoptez un style de codage cohérent avec Biome.
-  - Écrivez des tests pour toutes les fonctionnalités critiques.
-
-## FAQ
-
-### Installation avec Docker
-> ⚠️ Prérequis : Vous devez avoir installé Docker et Docker Compose sur votre machine.  
-> Suivez les instructions ici : [Docker Installation](https://docs.docker.com/get-docker/).
-
-Lorsque Docker est installé et démarré, exécutez la commande suivante pour construire l'image Docker et démarrer les conteneurs :
 ```bash
-docker compose up -d --build
+npm run test install
 ```
-La partie _client_ de l'application sera accessible à l'adresse http://localhost:3000 et la partie _serveur_ à l'adresse http://localhost:3310.  
-Pour arrêter et supprimer les conteneurs, exécutez :
+
+> Appelle ton formateur/ta formatrice si ce n'est pas le cas : c'est à ça que servent ces tests 😉
+
+Tu peux maintenant réaliser la suite, étape par étape (pour chaque étape, suis les indications des tests dans la console) :
+
+- `npm run test step1` : ajouter un champ `has_treasure` à la table `tile` (booléen, non nul, `false` par défaut).
+- `npm run test step2` : créer une route `GET /api/tiles` avec une action fonctionnelle (tu peux suivre le modèle de `GET /api/boats`).
+- `npm run test step3` : créer une route `PUT /api/boats/:id` pour mettre à jour un bateau de la base de données. Pense à revoir la quête "BREAD" sur Odyssey pour t'aider : tu dois ici réaliser l'opération "Edit". Ta route doit renvoyer un statut `204` si la mise à jour a réussi. Dans ton action, tu peux accéder avec le paramètre `req` à :
+  - l'id du bateau (`req.params.id`),
+  - ses coordonnées X et Y (`req.body.coord_x` et `req.body.coord_y`).
+- `npm run test step4` : créer un middleware dans `server/app/modules/tile/tileActions.ts` pour tester si une tuile avec les coordonnées `req.body.coord_x` et `req.body.coord_y` existe ou non dans la base de données.
+  - Pour cette étape, idéalement tu dois utiliser `tileRepository` pour trouver des tuiles à partir de leurs coordonnées (tu dois compléter la méthode `readByCoordinates` de la classe `TileRepository`).
+  - Si tu as des difficultés à utiliser `tileRepository`, tu peux t'en passer en vérifiant que la coordonnée X est comprise entre 0 et 11 (inclus), et que la coordonnée Y est comprise entre 0 et 5 (inclus).
+  - Si les coordonnées sont valides, passe au suivant. Sinon, répond avec un statut `422`.
+- `npm run test step5` : utiliser une jointure dans la méthode `readAll` de `BoatRepository` pour récupérer les informations de la tuile où se trouve le bateau. Assure toi de demander explicitement chaque champ (la jointure va te fournir 2 ids : `boat.id` et `tile.id`).
+
+Étape bonus :
+
+- `npm run test bonus` : ajouter un filtre sur le nom à la méthode `readAll` de `BoatRepository` (et traiter le cas où aucune valeur n'est passée pour le paramètre).
+
+## Et après ?
+
+Si tu veux voir le jeu alimenté par ton backend, retourne à la racine du projet et lance _front et back_ :
+
 ```bash
-docker compose down
+cd ..
+npm run dev
 ```
 
-#### Mode développement
-Les dépendances (du dossier `node_modules`) sont installées dans le conteneur Docker et ne seront pas visibles directement. Si vous utilisez un IDE comme VSCode et que vous souhaitez modifier des fichiers de votre application, vous devez installer les dépendances localement pour prévenir toute erreur de fichiers manquants.  
-```bash
-npm install
-```
-
-#### Installation de nouvelles dépendances
-Pour installer de nouvelles dépendances, procédez en local comme d'habitude avec `npm install <package-name>`, puis, synchronisez les dépendances dans le conteneur Docker avec la commande suivante :
-```bash
-docker compose exec web sh -c "npm install"
-```
-
-#### Accéder à la base de données
-Pour vous connecter à la base de données avec votre terminal, exécutez la commande suivante :
-```bash
-docker compose exec database sh -c "mysql -uuser -ppassword js_template_fullstack"
-```
-
-### Déploiement avec Traefik
-
-> ⚠️ Prérequis : Vous devez avoir installé et configuré Traefik sur votre VPS au préalable. Suivez les instructions ici : [VPS Traefik Starter Kit](https://github.com/WildCodeSchool/vps-traefik-starter-kit/).
-
-Pour le déploiement, ajoutez les secrets suivants dans la section `secrets` → `actions` du dépôt GitHub :
-
-- `SSH_HOST` : Adresse IP de votre VPS
-- `SSH_USER` : Identifiant SSH pour votre VPS
-- `SSH_PASSWORD` : Mot de passe de connexion SSH pour votre VPS
-
-Et une variable publique dans `/settings/variables/actions` :
-
-- `PROJECT_NAME` : Le nom du projet utilisé pour créer le sous-domaine.
-
-> ⚠️ Avertissement : Les underscores ne sont pas autorisés car ils peuvent causer des problèmes avec le certificat Let's Encrypt.
-
-L'URL de votre projet sera `https://${PROJECT-NAME}.${subdomain}.wilders.dev/`.
-
-### Variables d'environnement spécifiques
-
-Les étudiants doivent utiliser le modèle fourni dans le fichier `*.env.sample*` en suivant la convention `<PROJECT_NAME><SPECIFIC_NAME>=<THE_VARIABLE>`.
-
-> ⚠️ **Avertissement:** Le `PROJECT_NAME` doit correspondre à celui utilisé dans la variable publique Git.
-
-Pour l'ajouter lors du déploiement, suivez ces deux étapes :
-
-1. Ajoutez la variable correspondante dans le fichier `docker-compose.prod.yml` (comme montré dans l'exemple : `PROJECT_NAME_SPECIFIC_NAME: ${PROJECT_NAME_SPECIFIC_NAME}`).
-2. Connectez-vous à votre serveur via SSH. Ouvrez le fichier `.env` global dans Traefik (`nano ./traefik/data/.env`). Ajoutez la variable avec la valeur correcte et sauvegardez le fichier.
-
-Après cela, vous pouvez lancer le déploiement automatique. Docker ne sera pas rafraîchi pendant ce processus.
-
-### Logs
-
-Pour accéder aux logs de votre projet en ligne (pour suivre le déploiement ou surveiller les erreurs), connectez-vous à votre VPS (`ssh user@host`). Ensuite, allez dans votre projet spécifique et exécutez `docker compose logs -t -f`.
-
-### Contribution
-
-Nous accueillons avec plaisir les contributions ! Veuillez suivre ces étapes pour contribuer :
-
-1. **Fork** le dépôt.
-2. **Clone** votre fork sur votre machine locale.
-3. Créez une nouvelle branche pour votre fonctionnalité ou bug fix (`git switch -c feature/your-feature-name`).
-4. **Commit** vos modifications (`git commit -m 'Add some feature'`).
-5. **Push** vers votre branche (`git push origin feature/your-feature-name`).
-6. Créez une **Pull Request** sur le dépôt principal.
-
-**Guide de Contribution** :
-
-- Assurez-vous que votre code respecte les standards de codage en exécutant `npm run check` avant de pousser vos modifications.
-- Ajoutez des tests pour toute nouvelle fonctionnalité ou correction de bug.
-- Documentez clairement vos modifications dans la description de la pull request.
+Et ouvre l'adresse http://localhost:3000/ (n'oublie pas : c'est une version alpha 😅).

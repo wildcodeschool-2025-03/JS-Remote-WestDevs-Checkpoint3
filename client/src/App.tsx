@@ -1,59 +1,199 @@
+import { useEffect, useState } from "react";
+
 import "./App.css";
 
+import NavBar from "./components/NavBar";
+
+import boatImage from "./assets/boat.png";
+import api from "./services/api";
+
+type Boat = {
+  id: number;
+  name: string;
+  coord_x: number;
+  coord_y: number;
+  type: string;
+  has_treasure: boolean;
+};
+
+type Tile = {
+  id: number;
+  type: string;
+  coord_x: number;
+  coord_y: number;
+  has_treasure: boolean;
+};
+
 function App() {
+  const [boats, setBoats] = useState([] as Boat[]);
+  const [tiles, setTiles] = useState([] as Tile[]);
+
+  const reloadBoats = () =>
+    api.get("/api/boats?name=Black Pearl").then((response) => {
+      const upToDateBoats = response.data as Boat[];
+
+      setBoats(upToDateBoats);
+
+      const blackPearl = upToDateBoats.find(
+        (boat) => boat.name === "Black Pearl"
+      );
+
+      if (blackPearl?.has_treasure) {
+        alert("Not All Treasure Is Silver And Gold, Mate.");
+      }
+    });
+
+  useEffect(() => {
+    api.get("/api/tiles").then((response) => {
+      setTiles(response.data);
+    });
+    api.get("/api/boats?name=Black Pearl").then((response) => {
+      setBoats(response.data);
+    });
+  }, []);
+
+  const blackPearl = boats.find((boat) => boat.name === "Black Pearl");
+
+  const moveBoat = (id: number, coord_x: number, coord_y: number) => {
+    api
+      .put(`/api/boats/${id}`, { coord_x, coord_y })
+      .then((response) => {
+        if (response.status === 204) {
+          reloadBoats();
+        }
+      })
+      .catch((err) => {
+        console.error(err.message);
+      });
+  };
+
   return (
     <>
       <header>
-        <h1 className="logo">JS Monorepo</h1>
+        <NavBar onStart={reloadBoats} />
       </header>
-
-      <nav className="navbar">
-        <ul>
-          <li>
-            <a
-              href="https://github.com/WildCodeSchool/create-js-monorepo"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <svg
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                x="0px"
-                y="0px"
-                width="30"
-                height="30"
-                viewBox="0 0 50 50"
-              >
-                <path
-                  d="M17.791,46.836C18.502,46.53,19,45.823,19,45v-5.4c0-0.197,0.016-0.402,0.041-0.61C19.027,38.994,19.014,38.997,19,39 c0,0-3,0-3.6,0c-1.5,0-2.8-0.6-3.4-1.8c-0.7-1.3-1-3.5-2.8-4.7C8.9,32.3,9.1,32,9.7,32c0.6,0.1,1.9,0.9,2.7,2c0.9,1.1,1.8,2,3.4,2 c2.487,0,3.82-0.125,4.622-0.555C21.356,34.056,22.649,33,24,33v-0.025c-5.668-0.182-9.289-2.066-10.975-4.975 c-3.665,0.042-6.856,0.405-8.677,0.707c-0.058-0.327-0.108-0.656-0.151-0.987c1.797-0.296,4.843-0.647,8.345-0.714 c-0.112-0.276-0.209-0.559-0.291-0.849c-3.511-0.178-6.541-0.039-8.187,0.097c-0.02-0.332-0.047-0.663-0.051-0.999 c1.649-0.135,4.597-0.27,8.018-0.111c-0.079-0.5-0.13-1.011-0.13-1.543c0-1.7,0.6-3.5,1.7-5c-0.5-1.7-1.2-5.3,0.2-6.6 c2.7,0,4.6,1.3,5.5,2.1C21,13.4,22.9,13,25,13s4,0.4,5.6,1.1c0.9-0.8,2.8-2.1,5.5-2.1c1.5,1.4,0.7,5,0.2,6.6c1.1,1.5,1.7,3.2,1.6,5 c0,0.484-0.045,0.951-0.11,1.409c3.499-0.172,6.527-0.034,8.204,0.102c-0.002,0.337-0.033,0.666-0.051,0.999 c-1.671-0.138-4.775-0.28-8.359-0.089c-0.089,0.336-0.197,0.663-0.325,0.98c3.546,0.046,6.665,0.389,8.548,0.689 c-0.043,0.332-0.093,0.661-0.151,0.987c-1.912-0.306-5.171-0.664-8.879-0.682C35.112,30.873,31.557,32.75,26,32.969V33 c2.6,0,5,3.9,5,6.6V45c0,0.823,0.498,1.53,1.209,1.836C41.37,43.804,48,35.164,48,25C48,12.318,37.683,2,25,2S2,12.318,2,25 C2,35.164,8.63,43.804,17.791,46.836z"
-                  fill="#eee"
-                />
-              </svg>
-              Github
-            </a>
-          </li>
-        </ul>
-      </nav>
-
-      <main className="text-box">
-        <hgroup className="block-primary">
-          <h2 className="block-primary-main">JS Monorepo</h2>
-          <p className="block-primary-sub">Votre framework JavaScript</p>
-        </hgroup>
-        <p>Vous avez lu le README ?</p>
+      <main className="App">
+        <div className="container-fluid">
+          <h1>Map</h1>
+          <div className="row">
+            <div className="col-md-10">
+              <div className="map">
+                {tiles.length === 0 ? (
+                  <div className="alert alert-warning">
+                    You are still on the firm ground, you have to fill the
+                    database first, and declare the /tiles backend route !
+                  </div>
+                ) : (
+                  <div className="row">
+                    {tiles.map((tile) => {
+                      const boatOnTile = boats.find(
+                        (boat) =>
+                          boat.coord_x === tile.coord_x &&
+                          boat.coord_y === tile.coord_y
+                      );
+                      return (
+                        <div
+                          className={`tile col-1 ${tile.type}`}
+                          key={tile.id}
+                        >
+                          <div className="tile-data">{tile.type}</div>
+                          <div className="tile-data coords">
+                            {tile.coord_x},{tile.coord_y}
+                          </div>
+                          {boatOnTile && (
+                            <img
+                              className="boat img-fluid"
+                              src={boatImage}
+                              alt={boatOnTile.name}
+                              title={boatOnTile.name}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="col-md-2">
+              <div className="infos">
+                <h2>Information</h2>
+                {blackPearl && (
+                  <dl>
+                    <dt>x</dt>
+                    <dl>{blackPearl.coord_x}</dl>
+                    <dt>y</dt>
+                    <dl>{blackPearl.coord_y}</dl>
+                    <dt>type</dt>
+                    <dl>{blackPearl.type}</dl>
+                    <dt>has treasure?</dt>
+                    <dl>{blackPearl.has_treasure}</dl>
+                  </dl>
+                )}
+              </div>
+              <div className="navigation">
+                <h2>Navigation</h2>
+                {blackPearl && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        moveBoat(
+                          blackPearl.id,
+                          blackPearl.coord_x,
+                          blackPearl.coord_y - 1
+                        );
+                      }}
+                      className="north"
+                    >
+                      N
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        moveBoat(
+                          blackPearl.id,
+                          blackPearl.coord_x,
+                          blackPearl.coord_y + 1
+                        );
+                      }}
+                      className="south"
+                    >
+                      S
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        moveBoat(
+                          blackPearl.id,
+                          blackPearl.coord_x + 1,
+                          blackPearl.coord_y
+                        );
+                      }}
+                      className="east"
+                    >
+                      E
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        moveBoat(
+                          blackPearl.id,
+                          blackPearl.coord_x - 1,
+                          blackPearl.coord_y
+                        );
+                      }}
+                      className="west"
+                    >
+                      W
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
-
-      <footer>
-        Développé par la&nbsp;
-        <a
-          href="https://www.wildcodeschool.com/"
-          className="wcs"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Wild Code School
-        </a>
-      </footer>
     </>
   );
 }
