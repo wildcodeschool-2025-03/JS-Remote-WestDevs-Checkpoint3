@@ -3,6 +3,7 @@ import "dotenv/config";
 
 import supertest from "supertest";
 
+import databaseClient from "../database/client";
 import app from "../src/app";
 import boatRepository from "../src/modules/boat/boatRepository";
 
@@ -27,4 +28,8 @@ describe("GET /api/boats?name=Black Pearl", () => {
     expect(response.headers["content-type"]).toMatch(/json/);
     expect(response.body).toHaveLength(1);
   });
+});
+
+afterAll((done) => {
+  databaseClient.end().then(done);
 });
