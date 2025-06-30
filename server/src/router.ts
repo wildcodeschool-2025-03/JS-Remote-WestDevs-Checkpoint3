@@ -16,7 +16,9 @@ import tileActions from "./modules/tile/tileActions";
 
 router.post("/api/games", gameActions.add);
 
-router.put("/api/boats/:id", boatActions.edit);
+import validate from "./modules/tile/tileActions";
+
+router.put("/api/boats/:id", tileActions.validate, boatActions.edit);
 
 /* ************************************************************************* */
 
