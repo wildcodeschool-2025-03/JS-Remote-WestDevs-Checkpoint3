@@ -16,7 +16,23 @@ const browse: RequestHandler = async (req, res, next) => {
 };
 
 const edit: RequestHandler = async (req, res, next) => {
-  // your code here
+  try {
+    const boats = {
+      id: Number(req.params.id),
+      coord_x: Number(req.body.coord_x),
+      coord_y: Number(req.body.coord_y),
+    };
+
+    const affectedRows = await boatRepository.update(boats);
+
+    if (affectedRows) {
+      res.status(204).json("Update is succesfully");
+    } else {
+      res.status(404).json("The update failed");
+    }
+  } catch (err) {
+    next(err);
+  }
 };
 
 export default {
