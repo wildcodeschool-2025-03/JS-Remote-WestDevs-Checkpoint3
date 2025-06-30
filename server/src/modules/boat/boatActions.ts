@@ -16,7 +16,16 @@ const browse: RequestHandler = async (req, res, next) => {
 };
 
 const edit: RequestHandler = async (req, res, next) => {
-  // your code here
+  try {
+    const editBoat = await boatRepository.update(req.params);
+    if (editBoat) {
+      res.status(204).json("Boat is succefully edited");
+    } else {
+      res.status(404).json("impossible to edit boat");
+    }
+  } catch (error) {
+    res.status(500).json("internal server error");
+  }
 };
 
 export default {

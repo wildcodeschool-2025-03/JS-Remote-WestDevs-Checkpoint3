@@ -21,8 +21,10 @@ class BoatRepository {
   }
 
   async update(boatToUpdate: Partial<Boat>) {
-    // your code here
-    return 0;
+    const [result] = await databaseClient.query<Result>(
+      "UPDATE FROM boat WHERE id = ?",
+    );
+    return result.affectedRows;
   }
 }
 
