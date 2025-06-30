@@ -1,4 +1,7 @@
 import express from "express";
+import boatActions from "./modules/boat/boatActions";
+import gameActions from "./modules/game/gameActions";
+import tileActions from "./modules/tile/tileActions";
 
 const router = express.Router();
 
@@ -6,13 +9,13 @@ const router = express.Router();
 // Define Your API Routes Here
 /* ************************************************************************* */
 
-import boatActions from "./modules/boat/boatActions";
-
 router.get("/api/boats", boatActions.browse);
 
-import gameActions from "./modules/game/gameActions";
-
 router.post("/api/games", gameActions.add);
+
+router.get("/api/tiles", tileActions.browse);
+
+router.put("/api/boats/:id", boatActions.browse);
 
 /* ************************************************************************* */
 
