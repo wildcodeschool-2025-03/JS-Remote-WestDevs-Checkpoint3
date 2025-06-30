@@ -21,8 +21,13 @@ class BoatRepository {
   }
 
   async update(boatToUpdate: Partial<Boat>) {
-    // your code here
-    return 0;
+    const { id, coord_x, coord_y } = boatToUpdate;
+
+    const [Result] = await databaseClient.query<Result>(
+      "update boat set coord_x=?, coord_y=? where id=?",
+      [coord_x, coord_y, id],
+    );
+    return Result.affectedRows;
   }
 }
 
