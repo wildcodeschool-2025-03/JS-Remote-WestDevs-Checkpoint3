@@ -1,6 +1,6 @@
 import type { RequestHandler } from "express";
 
-import boatRepository from "./boatRepository";
+import boatRepository, { type Boat } from "./boatRepository";
 
 const browse: RequestHandler = async (req, res, next) => {
   try {
@@ -17,6 +17,22 @@ const browse: RequestHandler = async (req, res, next) => {
 
 const edit: RequestHandler = async (req, res, next) => {
   // your code here
+  const boat: Boat = {
+    id: Number(req.params.id),
+    name: req.body.name,
+    coord_x: req.body.coord_x,
+    coord_y: req.body.coord_y,
+  };
+
+  const affectedRows = await boatRepository.update(boat);
+
+  if (affectedRows === 0) {
+    res.sendStatus(404) /* .json("This boat doesn't exist") */;
+  } else {
+    res.sendStatus(
+      204,
+    ) /* .json(`${boat.name} has been edited successfully`) */;
+  }
 };
 
 export default {

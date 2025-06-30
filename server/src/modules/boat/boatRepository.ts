@@ -2,7 +2,7 @@ import databaseClient from "../../../database/client";
 
 import type { Result, Rows } from "../../../database/client";
 
-type Boat = {
+export type Boat = {
   id: number;
   name: string;
   coord_x: number;
@@ -22,7 +22,11 @@ class BoatRepository {
 
   async update(boatToUpdate: Partial<Boat>) {
     // your code here
-    return 0;
+    const [result] = await databaseClient.query<Result>(
+      "UPDATE boat set coord_x = ? , coord_y = ? WHERE id = ?",
+      [boatToUpdate.coord_x, boatToUpdate.coord_y, boatToUpdate.id],
+    );
+    return result.affectedRows;
   }
 }
 
