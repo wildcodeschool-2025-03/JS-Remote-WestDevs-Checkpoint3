@@ -15,7 +15,26 @@ const browse: RequestHandler = async (req, res, next) => {
 };
 
 const validate: RequestHandler = async (req, res, next) => {
-  // your code here
+  const { coord_x, coord_y } = req.body;
+
+  const x = Number(coord_x);
+  const y = Number(coord_y);
+
+  if (x < 0 || x > 11 || y < 0 || y > 5) {
+    return res.status(422).json({ error: "Invalid tile coordinates" });
+  }
+
+  try {
+    const tile = await tileRepository.readByCoordinates(x, y);
+
+    if (tile.length > 0) {
+      next();
+    } else {
+      res.status(422).json({ error: "Tile does not exist" });
+    }
+  } catch (err) {
+    next(err);
+  }
 };
 
 export default {

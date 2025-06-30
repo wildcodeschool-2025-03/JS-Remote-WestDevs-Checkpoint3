@@ -14,7 +14,7 @@ class TileRepository {
   async readAll() {
     // Execute the SQL SELECT query to retrieve all tiles from the "tile" table
     const [rows] = await databaseClient.query<Rows>(
-      "select * from tile order by coord_y, coord_x",
+      "SELECT * FROM tile ORDER BY coord_y, coord_x",
     );
 
     // Return the array of tiles
@@ -22,12 +22,16 @@ class TileRepository {
   }
 
   async readByCoordinates(coordX: number, coordY: number) {
-    // your code here
+    const [rows] = await databaseClient.query<Rows[]>(
+      "SELECT * FROM tile WHERE coord_x = ? and coord_y = ?",
+      [coordX, coordY],
+    );
+    return rows;
   }
 
   async getRandomIsland() {
     const [rows] = await databaseClient.query<Rows>(
-      "select id from tile where type='island' order by rand() limit 1",
+      "SELECT id FROM tile WHERE type='island' ORDER BY rand() LIMIT 1",
     );
 
     return rows[0] as Tile;
@@ -35,11 +39,11 @@ class TileRepository {
 
   async hideTreasure(island: Tile) {
     const [result] = await databaseClient.query<Result>(
-      `update tile set has_treasure =
-        case
-          when id = ? then true
-          else false
-        end`,
+      `UPDATE tile SET has_treasure =
+        CASE
+          WHEN id = ? THEN true
+          ELSE false
+        END`,
       [island.id],
     );
 
