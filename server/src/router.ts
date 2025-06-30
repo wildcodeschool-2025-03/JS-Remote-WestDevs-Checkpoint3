@@ -16,6 +16,8 @@ import tileActions from "./modules/tile/tileActions";
 
 router.post("/api/games", gameActions.add);
 
+router.put("/api/boats/:id", boatActions.edit);
+
 /* ************************************************************************* */
 
 export default router;
