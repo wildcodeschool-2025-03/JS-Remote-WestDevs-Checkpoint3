@@ -12,7 +12,11 @@ CREATE TABLE tile (
     coord_x INT NOT NULL,
     coord_y INT NOT NULL,
     PRIMARY KEY (id)
+    
 );
+
+ALTER TABLE tile
+ADD COLUMN has_treasure BOOLEAN NOT NULL DEFAULT FALSE;
 
 INSERT INTO
     boat (name, coord_x, coord_y)
