@@ -17,20 +17,22 @@ const browse: RequestHandler = async (req, res, next) => {
 
 const edit: RequestHandler = async (req, res, next) => {
   try {
+    const boatId = Number(req.params.id);
+    // const coordX = req.body.coord_x;
+    // const coordY = req.body.coord_y;
     const { coord_x, coord_y } = req.body;
-    const { id } = req.params;
 
-    if (coord_x === undefined || coord_y === undefined) {
-      res.status(400).json({ error: "coord_x and coord_y are required!" });
-    }
+    const updatedBoat = await boatRepository.update({
+      id: boatId,
+      coord_x,
+      coord_y,
+    });
 
-    const affectedRows = await boatRepository.update({});
-
-    if (affectedRows === 0) {
+    if (updatedBoat) {
+      res.sendStatus(204);
+    } else {
       res.sendStatus(404);
     }
-
-    res.sendStatus(204);
   } catch (err) {
     next(err);
   }

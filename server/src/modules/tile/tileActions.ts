@@ -4,9 +4,9 @@ import tileRepository from "./tileRepository";
 const browse: RequestHandler = async (req, res, next) => {
   try {
     const tiles = await tileRepository.readAll();
-    res.json(tiles);
+    res.status(200).json(tiles);
   } catch (err) {
-    res.json(500);
+    res.sendStatus(500);
   }
 };
 
