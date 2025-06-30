@@ -95,3 +95,6 @@ VALUES ("sea", 0, 0),
     ("sea", 9, 5),
     ("sea", 10, 5),
     ("island", 11, 5);
+
+    ALTER TABLE title
+    ADD COLUMN has_treasure BOOLEAN NOT NULL FALSE;

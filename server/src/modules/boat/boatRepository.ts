@@ -20,6 +20,14 @@ class BoatRepository {
     return rows as Boat[];
   }
 
+  async editUpdate(id: number) {
+    const [affectedRows] = await databaseClient.query<Rows>(
+      "SELECT * from boat order by coord_y, coord_x WHERE boat.id =?",
+      [id],
+    );
+    return affectedRows;
+  }
+
   async update(boatToUpdate: Partial<Boat>) {
     // your code here
     return 0;
