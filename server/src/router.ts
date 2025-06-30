@@ -9,6 +9,7 @@ router.get("/api/tiles", tileActions.browse);
 /* ************************************************************************* */
 
 router.get("/api/boats", boatActions.browse);
+router.put("/api/boats/:id", boatActions.edit);
 
 router.post("/api/games", gameActions.add);
 
