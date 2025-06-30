@@ -5,7 +5,8 @@ import boatRepository, { type Boat } from "./boatRepository";
 const browse: RequestHandler = async (req, res, next) => {
   try {
     // Fetch all boats from the database
-    const boats = await boatRepository.readAll();
+    /* console.warn(`req : ${req.query}`); */
+    const boats = await boatRepository.readAll(req.query?.toString);
 
     // Respond with the boats in JSON format
     res.json(boats);

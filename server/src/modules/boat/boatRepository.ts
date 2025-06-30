@@ -12,9 +12,23 @@ export type Boat = {
 class BoatRepository {
   async readAll(where?: { name: string }) {
     // Execute the SQL SELECT query to retrieve all boats from the "boat" table
+    const filter = where == null ? "" : "WHERE boat.name=?";
+
     const [rows] = await databaseClient.query<Rows>(
-      "SELECT boat.id as id, boat.name, boat.coord_x, boat.coord_y, tile.id AS tile_id, tile.type, tile.has_treasure FROM boat LEFT JOIN tile ON boat.coord_x=tile.coord_x AND boat.coord_y=tile.coord_y ORDER BY coord_y, coord_x",
+      `SELECT boat.id as id, boat.name, boat.coord_x, boat.coord_y, tile.id AS tile_id, tile.type, tile.has_treasure FROM boat LEFT JOIN tile ON boat.coord_x=tile.coord_x AND boat.coord_y=tile.coord_y ${filter} ORDER BY coord_y, coord_x`,
+      [where?.name],
     );
+
+    /* if (where == null) {
+      const [rows] = await databaseClient.query<Rows>(
+        "SELECT boat.id as id, boat.name, boat.coord_x, boat.coord_y, tile.id AS tile_id, tile.type, tile.has_treasure FROM boat LEFT JOIN tile ON boat.coord_x=tile.coord_x AND boat.coord_y=tile.coord_y ORDER BY coord_y, coord_x",
+      );
+    } else {
+      const [rows] = await databaseClient.query<Rows>(
+        "SELECT boat.id as id, boat.name, boat.coord_x, boat.coord_y, tile.id AS tile_id, tile.type, tile.has_treasure FROM boat LEFT JOIN tile ON boat.coord_x=tile.coord_x AND boat.coord_y=tile.coord_y WHERE boat.name=? ORDER BY coord_y, coord_x",
+        [where.name],
+      );
+    } */
 
     // Return the array of tiles
     return rows as Boat[];
